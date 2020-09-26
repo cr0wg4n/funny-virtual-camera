@@ -2,7 +2,6 @@ import pyvirtualcam
 import cv2
 from models.Filterizer import Filterizer
 from pynput import keyboard
-from multiprocessing import Process
 import time 
 
 tecla = ''
@@ -13,8 +12,6 @@ def main():
     webcam = cv2.VideoCapture(0)
     background = cv2.imread('./backgrounds/pycon.png')
     filterer = Filterizer()
-    # proc = Process(target=launch_keyboard_listener, args=(key,))
-    # proc.start()
     listener = keyboard.Listener(on_press=on_press)
     listener.start()
     with pyvirtualcam.Camera(width=width, height=height, fps=fps, delay=1) as cam:
