@@ -20,12 +20,12 @@ class Filterizer():
     
     def insert_background_instead_green(self, img, background):
         hsvFrame = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        green_lower = np.array([25, 52, 72], np.uint8)
+        green_lower = np.array([25, 16, 72], np.uint8)
         green_upper = np.array([102, 255, 255], np.uint8)
         green_mask = cv2.inRange(hsvFrame, green_lower, green_upper)
         kernel = np.ones((5, 5), "uint8")
         green_mask = ~cv2.dilate(green_mask, kernel)
-        green_mask = cv2.medianBlur(green_mask, 9)
+        green_mask = cv2.medianBlur(green_mask, 5)
         res_green = cv2.bitwise_and(img, img, mask=green_mask)
         cols, rows = res_green.shape[:2]
         background = background[0:cols, 0:rows]
