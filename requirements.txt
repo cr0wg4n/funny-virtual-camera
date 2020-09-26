@@ -1,2 +1,8 @@
-numpy>=1.14.0
-git+https://github.com/letmaik/pyvirtualcam
+autopep8==1.5.4
+numpy==1.19.2
+opencv-python==4.4.0.44
+pycodestyle==2.6.0
+pynput==1.7.1
+pyvirtualcam==0.2.0
+six==1.15.0
+toml==0.10.1
