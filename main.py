@@ -1,6 +1,7 @@
 import pyvirtualcam
 import cv2
-from models.Filterizer import Filterizer
+from models.ImageManager import ImageManager
+from models.Frame import Frame
 from pynput import keyboard
 import time 
 
@@ -13,10 +14,14 @@ def main():
     webcam = cv2.VideoCapture(0)
     webcam.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     webcam.set(cv2.CAP_PROP_FRAME_HEIGHT, 360)
-    background = cv2.imread('./backgrounds/pycon.png')
-    filterer = Filterizer()
-    # listener = keyboard.Listener(on_press=on_press)
-    # listener.start()
+    # background = cv2.imread('./backgrounds/pycon.png')
+    frames = [
+        Frame(id='pycon', path='./backgrounds/pycon.png', width=width, height=height),
+        Frame(id='moon', path='./backgrounds/moon.jpg', width=width, height=height),
+        Frame(id='time', path='./backgrounds/its_time_to_stop.mp4', width=width, height=height, video=True)
+    ]
+    image_manager = ImageManager()
+    frames = image_manager.load_files(frames)
     listener = keyboard.GlobalHotKeys({
         '<ctrl>+<alt>+a': hot_key_a,
         '<ctrl>+<alt>+s': hot_key_s,
@@ -24,24 +29,41 @@ def main():
         '<ctrl>+<alt>+f': hot_key_f,
     })
     listener.start()
+    print('data loaded!')
     with pyvirtualcam.Camera(width=width, height=height, fps=fps, delay=1) as cam:
+        count = 0
+        lenght = 0
         while True:
             if key == 'a':
                 _, image_frame = webcam.read()
-                result = filterer.insert_background_instead_green(image_frame, background)
-                # cv2.imshow("res", result)
-                result = cv2.cvtColor(result, cv2.COLOR_BGR2RGBA)
-                cam.send(result)
-                # cv2.waitKey(1)
+                background = Frame().get_frame_by_id(frames, 'pycon')
+                if background:
+                    result = image_manager.insert_background_instead_green(image_frame, background.frame)
+                    result = cv2.cvtColor(result, cv2.COLOR_BGR2RGBA)
+                    cam.send(result)
             elif key == 's':
-                pass
+                _, image_frame = webcam.read()
+                background = Frame().get_frame_by_id(frames, 'moon')
+                if background:
+                    result = image_manager.insert_background_instead_green(image_frame, background.frame)
+                    result = cv2.cvtColor(result, cv2.COLOR_BGR2RGBA)
+                    cam.send(result)
             elif key == 'd':
-                pass
+                video = Frame().get_frame_by_id(frames, 'time')
+                if video:
+                    result = video.frame[count]
+                    count += 1
+                    lenght = len(video.frame)
+                    result = cv2.cvtColor(result, cv2.COLOR_BGR2RGBA)
+                    cam.send(result)
+                    cam.sleep_until_next_frame()
             elif key == 'f':
                 _, image_frame = webcam.read()
                 result = cv2.cvtColor(image_frame, cv2.COLOR_BGR2RGBA)
                 cam.send(result)
 
+            if count >= lenght:
+                count=0
 def hot_key_a():
     global key
     key = 'a'
