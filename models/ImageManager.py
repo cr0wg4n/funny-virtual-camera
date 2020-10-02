@@ -54,8 +54,9 @@ class ImageManager():
                 while True:
                     _, frame = cap.read()
                     frame = cv2.resize(frame, (image.width, image.height))
-                    mask = self.remove_green_background(frame)
-                    frame = cv2.bitwise_and(frame, ~mask)
+                    if not image.background_ignore:
+                        mask = self.remove_green_background(frame)
+                        frame = cv2.bitwise_and(frame, ~mask)
                     frames.append(frame)
                     if cap.get(cv2.CAP_PROP_POS_FRAMES) == cap.get(cv2.CAP_PROP_FRAME_COUNT):
                         break
